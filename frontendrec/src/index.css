@@ -1,0 +1,37 @@
+/* index.css - replace your current file with this */
+
+/* Tailwind base / components / utilities (proper directives) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* simple reset (keeps tailwind base but ensures full height) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(180deg, #f0f6ff 0%, #eef2ff 100%); /* subtle background if you want */
+}
+
+/* small helper to ensure the main container centers nicely when using Tailwind utilities */
+.app-center {
+  /* these utilities are duplicated by Tailwind classes but kept for fallback */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 3rem 1rem;
+}
