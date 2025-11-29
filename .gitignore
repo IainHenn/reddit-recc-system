@@ -1,3 +1,4 @@
 /venv
 secret.json
 
+data/chroma.sqlite3
