@@ -1,2 +1,3 @@
-chromadb
+chromadb==1.3.5 #DO NOT CHANGE
 sentence-transformers
+flask

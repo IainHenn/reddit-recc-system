@@ -20,7 +20,7 @@ print("Loading embedding model 'BAAI/bge-large-en-v1.5'...")
 model = SentenceTransformer('BAAI/bge-large-en-v1.5')
 
 # Connect to the same ChromaDB instance created by data-grabber.py
-client = chromadb.PersistentClient(path="./data")  # <- Matches 'path="data"' in your script
+client = chromadb.PersistentClient(path="data")  # <- Matches 'path="data"' in your script
 collection = client.get_or_create_collection("reddit_posts")  # <- Same collection name
 
 logger.info("Connected to ChromaDB at ./data/collection=reddit_posts")
@@ -84,7 +84,5 @@ def search_posts():
         return jsonify({"error": "Internal server error"}), 500
 
    
-def run_server():
-    app.run(port = 5000, debug=False, use_reloader=False)
-
-threading.Thread(target=run_server, daemon = True).start()
+if __name__ == "__main__":
+    app.run(debug=True, port=8000) # debug=True enables debug mode and auto-reloading

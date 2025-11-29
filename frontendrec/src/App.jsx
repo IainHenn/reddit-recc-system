@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, User, ThumbsUp, TrendingUp } from 'lucide-react';
+import { Search, MessageSquare, ThumbsUp, TrendingUp, ExternalLink } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -10,28 +10,29 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-export default function TopicRecommender() {
+export default function CryptoRecommender() {
   const [topic, setTopic] = useState('');
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Replace this URL with your actual API endpoint
-  const API_ENDPOINT = 'https://your-api-endpoint.com/recommend';
+  // Update this to your actual backend URL
+  const API_ENDPOINT = 'http://localhost:8000/search';
 
   const handleSearch = async (searchTopic) => {
     const query = (searchTopic ?? topic).trim();
     if (!query) {
-      setError('Please enter a topic');
+      setError('Please enter a cryptocurrency');
       return;
     }
 
     setLoading(true);
     setError('');
+    setResults(null);
 
     try {
       const response = await fetch(
-        `${API_ENDPOINT}?topic=${encodeURIComponent(query)}`,
+        `${API_ENDPOINT}?q=${encodeURIComponent(query)}&n=10`,
         {
           method: 'GET',
           headers: {
@@ -40,13 +41,21 @@ export default function TopicRecommender() {
         }
       );
 
-      if (!response.ok) throw new Error('Failed to fetch recommendations');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
+      
+      // Check if we have valid data
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
       setResults(data);
     } catch (err) {
-      setError('Failed to load recommendations. Please try again.');
-      console.error(err);
+      setError(`Failed to load recommendations: ${err.message}`);
+      console.error('Search error:', err);
       setResults(null);
     } finally {
       setLoading(false);
@@ -58,39 +67,36 @@ export default function TopicRecommender() {
     handleSearch();
   };
 
-  // Transform results for chart
+  // Transform results for chart - top 10 posts by upvotes
   const chartData =
-    results?.users?.slice(0, 10).map((user) => ({
-      name: user.username || user.name || 'Unknown',
-      upvotes: user.totalUpvotes || user.upvotes || 0,
+    results?.posts?.slice(0, 10).map((post, idx) => ({
+      name: `#${idx + 1}`,
+      upvotes: post.upvotes || 0,
+      title: post.title
     })) || [];
 
   const totalUpvotes =
-    results?.users?.reduce(
-      (sum, u) => sum + (u.totalUpvotes || u.upvotes || 0),
-      0
-    ) || 0;
+    results?.posts?.reduce((sum, p) => sum + (p.upvotes || 0), 0) || 0;
+  
+  const totalComments =
+    results?.posts?.reduce((sum, p) => sum + (p.num_comments || 0), 0) || 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-6 py-16">
-      {/* centered column container */}
-      <div className="w-full max-w-3xl">
-        {/* header */}
+      <div className="w-full max-w-4xl">
+        {/* Header */}
         <header className="text-center mb-6">
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 leading-tight">
-            Crypto Recommender
+            Crypto Reddit Advisor
           </h1>
-          <p className="text-sm text-gray-600 mt-1">Find top cryptocurrencies by coin type</p>
+          <p className="text-sm text-gray-600 mt-1">
+            Get advice from the most upvoted Reddit posts
+          </p>
         </header>
 
-        {/* search card (centered, narrower column) */}
+        {/* Search Card */}
         <main className="mx-auto max-w-2xl">
-          <form
-            onSubmit={onSubmit}
-            className="relative bg-white rounded-2xl shadow-[0_20px_40px_rgba(13,38,76,0.06)] p-5 md:p-6"
-            aria-label="Search crypto topic"
-          >
-            {/* search input with floating button */}
+          <div className="relative bg-white rounded-2xl shadow-lg p-5 md:p-6">
             <div className="relative">
               <div className="flex items-center gap-3">
                 <div className="hidden md:flex items-center justify-center w-10 h-10 bg-blue-50 rounded-full">
@@ -101,52 +107,57 @@ export default function TopicRecommender() {
                   type="text"
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
-                  placeholder="Enter a cryptocurrency (e.g., Bitcoin, Ethereum)"
-                  aria-label="Search topic"
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  placeholder="Enter a cryptocurrency (e.g., Bitcoin, Dogecoin)"
                   className="flex-1 text-lg px-4 py-3 pr-28 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent shadow-sm"
                 />
 
-                {/* keep a small visible button on small screens (inline) */}
                 <button
-                  type="submit"
+                  onClick={() => handleSearch()}
                   disabled={loading}
                   className="md:hidden inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
                 >
                   <Search size={16} />
-                  {loading ? 'Searching' : 'Search'}
+                  {loading ? 'Searching...' : 'Search'}
                 </button>
               </div>
 
-              {/* floating button for md+ screens (absolutely positioned to the right of input) */}
               <button
-                type="submit"
-                onClick={() => {}}
+                onClick={() => handleSearch()}
                 disabled={loading}
-                className="hidden md:inline-flex items-center gap-2 absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed shadow"
+                className="hidden md:inline-flex items-center gap-2 absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed shadow transition"
               >
                 <Search size={16} />
-                {loading ? 'Searching' : 'Search'}
+                {loading ? 'Searching...' : 'Search'}
               </button>
             </div>
 
-            {error && <p className="text-red-500 mt-3 text-sm">{error}</p>}
+            {error && (
+              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            )}
 
-            <p className="text-xs text-gray-400 mt-3">Tip: try "Bitcoin", "Ethereum", or "Stablecoin".</p>
-          </form>
+            <p className="text-xs text-gray-400 mt-3">
+              💡 Try: "Bitcoin", "Ethereum", "Dogecoin", "when lambo", "buy the dip"
+            </p>
+          </div>
 
-          {/* Results or Empty state */}
+          {/* Results */}
           <div className="mt-6">
             {results ? (
               <div className="space-y-5">
-                {/* stat cards in a row */}
+                {/* Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-white rounded-lg shadow p-4 flex items-center gap-3">
                     <div className="p-2 bg-blue-50 rounded-full">
-                      <User className="text-blue-600" size={18} />
+                      <Search className="text-blue-600" size={18} />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Total Users</p>
-                      <p className="text-2xl font-bold text-gray-800">{results.users?.length || 0}</p>
+                      <p className="text-sm text-gray-500">Results Found</p>
+                      <p className="text-2xl font-bold text-gray-800">
+                        {results.total_results || 0}
+                      </p>
                     </div>
                   </div>
 
@@ -156,32 +167,50 @@ export default function TopicRecommender() {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Total Upvotes</p>
-                      <p className="text-2xl font-bold text-gray-800">{totalUpvotes}</p>
+                      <p className="text-2xl font-bold text-gray-800">
+                        {totalUpvotes.toLocaleString()}
+                      </p>
                     </div>
                   </div>
 
                   <div className="bg-white rounded-lg shadow p-4 flex items-center gap-3">
                     <div className="p-2 bg-purple-50 rounded-full">
-                      <TrendingUp className="text-purple-600" size={18} />
+                      <MessageSquare className="text-purple-600" size={18} />
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-sm text-gray-500">Topic</p>
-                      <p className="text-2xl font-bold text-gray-800 truncate">{topic || '—'}</p>
+                    <div>
+                      <p className="text-sm text-gray-500">Total Comments</p>
+                      <p className="text-2xl font-bold text-gray-800">
+                        {totalComments.toLocaleString()}
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                {/* chart */}
+                {/* Chart */}
                 {chartData.length > 0 && (
                   <div className="bg-white rounded-lg shadow p-5">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Top Contributors</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                      Top Posts by Upvotes
+                    </h3>
                     <div style={{ width: '100%', height: 260 }}>
                       <ResponsiveContainer>
                         <BarChart data={chartData} margin={{ right: 24 }}>
                           <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="name" angle={-35} textAnchor="end" height={60} interval={0} />
+                          <XAxis dataKey="name" />
                           <YAxis />
-                          <Tooltip />
+                          <Tooltip 
+                            content={({ active, payload }) => {
+                              if (active && payload && payload.length) {
+                                return (
+                                  <div className="bg-white p-3 border rounded shadow-lg max-w-xs">
+                                    <p className="font-semibold">{payload[0].value} upvotes</p>
+                                    <p className="text-xs text-gray-600 mt-1">{payload[0].payload.title}</p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
                           <Bar dataKey="upvotes" fill="#3b82f6" radius={[6, 6, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
@@ -189,43 +218,86 @@ export default function TopicRecommender() {
                   </div>
                 )}
 
-                {/* user list */}
+                {/* Posts List */}
                 <div className="bg-white rounded-lg shadow p-5">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">User Rankings</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                    Top Recommended Posts
+                  </h3>
                   <div className="space-y-3">
-                    {results.users?.length ? (
-                      results.users.map((user, idx) => (
+                    {results.posts?.length ? (
+                      results.posts.map((post, idx) => (
                         <div
-                          key={idx}
-                          className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition"
+                          key={post.id}
+                          className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition"
                         >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center font-semibold text-blue-600">
-                              #{idx + 1}
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-2">
+                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center font-semibold text-blue-600 text-sm">
+                                  #{idx + 1}
+                                </div>
+                                <span className="text-xs text-gray-500">
+                                  r/{post.subreddit}
+                                </span>
+                                {post.flair && post.flair !== 'None' && (
+                                  <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                                    {post.flair}
+                                  </span>
+                                )}
+                              </div>
+                              
+                              <h4 className="font-semibold text-gray-800 mb-1">
+                                {post.title}
+                              </h4>
+                              
+                              <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                                {post.text}
+                              </p>
+                              
+                              <div className="flex items-center gap-4 text-sm text-gray-500">
+                                <div className="flex items-center gap-1">
+                                  <ThumbsUp size={14} className="text-green-600" />
+                                  <span>{post.upvotes.toLocaleString()}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <MessageSquare size={14} />
+                                  <span>{post.num_comments.toLocaleString()}</span>
+                                </div>
+                                <span>by u/{post.author}</span>
+                                <span className="text-blue-600">
+                                  {(post.relevance_score * 100).toFixed(1)}% match
+                                </span>
+                              </div>
                             </div>
-                            <div className="min-w-0">
-                              <p className="font-medium text-gray-800 truncate">{user.username || user.name || 'Anonymous'}</p>
-                              <p className="text-sm text-gray-500">{user.posts || 0} posts</p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <ThumbsUp size={16} className="text-green-600" />
-                            <span className="font-semibold text-gray-800">{user.totalUpvotes || user.upvotes || 0}</span>
+                            
+                            <a
+                              href={post.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-shrink-0 p-2 text-blue-600 hover:bg-blue-50 rounded transition"
+                            >
+                              <ExternalLink size={18} />
+                            </a>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <p className="text-gray-500">No users found for this topic.</p>
+                      <p className="text-gray-500 text-center py-4">
+                        No posts found for this topic.
+                      </p>
                     )}
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="bg-white rounded-2xl shadow p-12 text-center mt-4">
+              <div className="bg-white rounded-2xl shadow p-12 text-center">
                 <Search size={64} className="mx-auto text-gray-300 mb-4" />
-                <h3 className="text-2xl font-semibold text-gray-700 mb-1">Start Your Search</h3>
-                <p className="text-gray-500">Enter a topic above to find top contributors</p>
+                <h3 className="text-2xl font-semibold text-gray-700 mb-1">
+                  Start Your Search
+                </h3>
+                <p className="text-gray-500">
+                  Enter a cryptocurrency above to get advice from top Reddit posts
+                </p>
               </div>
             )}
           </div>
