@@ -11,3 +11,4 @@ def hello_world():
     # Run the application if the script is executed directly
 if __name__ == "__main__":
     app.run(debug=True, port=8000) # debug=True enables debug mode and auto-reloading
+#Backend troubleshooter for localhost issues
