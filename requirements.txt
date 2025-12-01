@@ -3,3 +3,4 @@ sentence-transformers
 flask
 flask-cors
 gunicorn
+tailwindcss==4.1.17
