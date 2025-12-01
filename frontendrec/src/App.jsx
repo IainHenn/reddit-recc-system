@@ -103,10 +103,10 @@ export default function CryptoRecommender() {
           <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center relative">
             <h2 className="text-2xl font-bold mb-2">Welcome to Crypto Reddit Advisor!</h2>
             <p className="text-gray-600 mb-6">
-              By using this site, you understand that advice is based on public Reddit posts.<br />
+              By using this site, you understand that advice is based on public Reddit posts and is for educational purposes.<br />
               Do your own research before making financial decisions.
               We are not financial advisors, and this is only for a university project.
-              Can't stop gambling? Help is avaliable: 1-800-522-4700
+              Can't stop gambling? Help is avaliable: 1-800-522-4700.
             </p>
             <div className="flex items-center justify-center mb-6">
               <input
