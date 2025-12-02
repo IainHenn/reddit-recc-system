@@ -19,13 +19,27 @@ def initialize_or_setup_db():
     Initializes client
     Returns: collection to write to
     """
-    client = chromadb.PersistentClient(
-        path="", settings=Settings(anonymized_telemetry=False)
-    )
+    import shutil
 
-    collection = client.get_or_create_collection("reddit_posts")
-
-    return collection
+    db_path = "data"
+    try:
+        client = chromadb.PersistentClient(
+            path=db_path, settings=Settings(anonymized_telemetry=False)
+        )
+        collection = client.get_or_create_collection("reddit_posts")
+        return collection
+    except Exception as e:
+        # Detect pickle/hnsw deserialization errors and reset database
+        if "deserializing pickle file" in str(e) or "hnsw segment reader" in str(e):
+            logging.error("ChromaDB database corrupted. Removing and recreating database directory.")
+            shutil.rmtree(db_path, ignore_errors=True)
+            client = chromadb.PersistentClient(
+                path=db_path, settings=Settings(anonymized_telemetry=False)
+            )
+            collection = client.get_or_create_collection("reddit_posts")
+            return collection
+        else:
+            raise
 
 
 def process_post(post):
@@ -34,6 +48,7 @@ def process_post(post):
     Return: information used to insert into chroma
     """
     post_id = post.get("id")
+    post_score = post.get("score")
 
     # Skip no ID post
     if not post_id:
@@ -51,7 +66,7 @@ def process_post(post):
         "timestamp": post.get("created_utc")
         if post.get("created_utc") is not None
         else 0,
-        "upvotes": post.get("ups") if post.get("ups") is not None else 0,
+        "upvotes": post_score if post_score is not None else 0,
         "num_comments": post.get("num_comments")
         if post.get("num_comments") is not None
         else 0,
