@@ -49,7 +49,7 @@ const API_ENDPOINT = 'https://redditbananas.blacksea-eb2acaf9.westus2.azureconta
 
     try {
       const response = await fetch(
-        `${API_ENDPOINT}?q=${encodeURIComponent(query)}&n=100`,
+        `${API_ENDPOINT}?q=${encodeURIComponent(query)}&n=4`,
         {
           method: 'GET',
           headers: {
