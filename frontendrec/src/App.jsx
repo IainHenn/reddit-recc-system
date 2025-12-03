@@ -34,7 +34,8 @@ export default function CryptoRecommender() {
   };
 
   // Your backend endpoint
-const API_ENDPOINT = 'https://redditbananas.blacksea-eb2acaf9.westus2.azurecontainerapps.io/search';
+const API_ENDPOINT = 'https://version2.blacksea-eb2acaf9.westus2.azurecontainerapps.io/search';
+
 
   const handleSearch = async (searchTopic) => {
     const query = (searchTopic ?? topic).trim();
