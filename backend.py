@@ -60,6 +60,7 @@ def search_posts():
     Query Parameters:
         q (str): User input like "doge", "when lambo", or "BTC pump"
         n (int): Number of results (default=5)
+        upvotes_min (int): Number of minimum upvotes desired for posts retrieved
 
     Returns:
         JSON: {query, total_results, posts[]}
