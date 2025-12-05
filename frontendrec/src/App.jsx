@@ -95,15 +95,27 @@ const API_ENDPOINT = 'https://version3app.blacksea-eb2acaf9.westus2.azurecontain
       {/* WELCOME MODAL */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-          <div className="bg-white shadow-2xl rounded-lg p-8 w-full max-w-md text-center">
-            <h2 className="text-2xl font-bold mb-2 text-gray-900">
+          <div className="bg-white shadow-2xl rounded-lg p-8 w-full max-w-lg text-center">
+            <h2 className="text-2xl font-bold mb-4 text-gray-900">
               Welcome to <span className="text-blue-600">Crypto Reddit Advisor!</span>
             </h2>
-            <p className="text-gray-700 mb-6">
-              This site provides advice and trends based on the most upvoted public Reddit posts.<br/>
-              <b>Always do your own research before making financial decisions.</b>
-            </p>
-            <div className="flex items-center justify-center mb-6">
+            <div className="text-gray-700 mb-8">
+              <p>
+                This site provides advice and trends based on the most upvoted public Reddit posts.
+              </p>
+              <p className="font-bold mt-6">
+                Always do your own research before making financial decisions.
+              </p>
+            </div>
+            
+            <button
+              onClick={handleModalClose}
+              className="bg-blue-600 text-white w-64 py-3 rounded-full font-semibold hover:bg-blue-700 transition shadow-md mb-4"
+            >
+              I Understand
+            </button>
+
+            <div className="flex items-center justify-center">
               <input
                 id="remember-choice"
                 type="checkbox"
@@ -115,12 +127,6 @@ const API_ENDPOINT = 'https://version3app.blacksea-eb2acaf9.westus2.azurecontain
                 Remember my choice
               </label>
             </div>
-            <button
-              onClick={handleModalClose}
-              className="bg-blue-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-blue-700 transition"
-            >
-              I Understand
-            </button>
           </div>
         </div>
       )}
@@ -129,55 +135,57 @@ const API_ENDPOINT = 'https://version3app.blacksea-eb2acaf9.westus2.azurecontain
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-100 to-pink-50 flex items-center justify-center px-2 py-8">
           <div className="w-full max-w-5xl">
             {/* HEADER */}
-            <header className="text-center mb-6">
-              <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight drop-shadow-sm">
+            <header className="text-center mb-24">
+              <h1 className="text-5xl md:text-7xl font-black text-gray-900 tracking-tight drop-shadow-sm">
                 <span className="text-blue-700">Crypto</span> Reddit Advisor
               </h1>
-              <p className="text-base text-gray-500 mt-1">
+              <p className="text-lg text-gray-500 mt-4">
                 Get advice from the <span className="font-bold text-blue-600">most upvoted</span> Reddit posts
               </p>
             </header>
             {/* SEARCH CARD */}
-            <main className="mx-auto max-w-2xl mb-8">
-              <div className="relative bg-white rounded-2xl shadow-xl p-5 md:p-6 border border-slate-100">
-                <div className="relative">
-                  <form onSubmit={e => { e.preventDefault(); handleSearch(); }}>
-                    <div className="flex items-center gap-3">
-                      <div className="hidden md:flex items-center justify-center w-10 h-10 bg-blue-50 rounded-full">
-                        <Search size={18} className="text-blue-600" />
-                      </div>
-                      <input
-                        type="text"
-                        value={topic}
-                        onChange={(e) => setTopic(e.target.value)}
-                        placeholder="Enter a cryptocurrency (e.g., Bitcoin, Dogecoin)"
-                        className="flex-1 text-lg px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
-                        disabled={loading}
-                      />
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-full text-base font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed shadow transition"
-                      >
-                        <Search size={18} />
-                        {loading ? 'Searching...' : 'Search'}
-                      </button>
+            <main className="w-full flex justify-center mb-12">
+              <div className="relative w-full max-w-2xl">
+                <form onSubmit={e => { e.preventDefault(); handleSearch(); }}>
+                  <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm p-3 rounded-full shadow-lg border border-white/50 focus-within:ring-4 focus-within:ring-blue-100 transition-all hover:bg-white">
+                    <div className="pl-4 text-gray-400">
+                      <Search size={24} />
                     </div>
-                  </form>
-                </div>
+                    <input
+                      type="text"
+                      value={topic}
+                      onChange={(e) => setTopic(e.target.value)}
+                      placeholder="Enter a cryptocurrency (e.g., Bitcoin)"
+                      className="flex-1 text-xl px-2 py-2 bg-transparent border-none focus:outline-none text-gray-800 placeholder-gray-500 text-center"
+                      disabled={loading}
+                    />
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="inline-flex items-center gap-2 px-12 py-4 bg-blue-600 text-white rounded-full text-base font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition flex-shrink-0"
+                    >
+                      {loading ? '...' : 'Search'}
+                    </button>
+                  </div>
+                </form>
+                
                 {error && (
-                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg animate-shake">
+                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-center animate-shake">
                     <p className="text-red-600 text-sm">{error}</p>
                   </div>
                 )}
-                <p className="text-xs text-blue-500 mt-3">
-                  💡 Try: <code>Bitcoin</code>, <code>Ethereum</code>, <code>Dogecoin</code>, <code>when lambo</code>, <code>buy the dip</code>
-                </p>
+                
+                <div className="text-center mt-4">
+                  <p className="text-xs text-gray-500">
+                    💡 Try: <span className="font-medium text-blue-600">Bitcoin</span>, <span className="font-medium text-blue-600">Ethereum</span>, <span className="font-medium text-blue-600">Dogecoin</span>
+                  </p>
+                </div>
               </div>
             </main>
+
             {/* RESULTS */}
             <div className="mb-8">
-              {results ? (
+              {results && (
                 <div className="space-y-5">
                   {/* STAT CARDS */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -295,16 +303,6 @@ const API_ENDPOINT = 'https://version3app.blacksea-eb2acaf9.westus2.azurecontain
                       )}
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="bg-white rounded-2xl shadow-xl p-12 text-center flex flex-col items-center border mt-10">
-                  <Search size={64} className="mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-2xl font-semibold text-gray-700 mb-1">
-                    Start Your Search
-                  </h3>
-                  <p className="text-gray-500 max-w-md">
-                    Enter a cryptocurrency above to get advice from top Reddit posts.
-                  </p>
                 </div>
               )}
             </div>
