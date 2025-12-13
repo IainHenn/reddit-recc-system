@@ -1,0 +1,22 @@
+{
+  "avg_per_query": {
+    "bitcoin": 1.0,
+    "ethereum": 1.0,
+    "dogecoin": 1.0,
+    "solana": 0.7527777777777778,
+    "cardano": 1.0,
+    "defi": 1.0,
+    "etf": 1.0,
+    "halving": 1.0,
+    "airdrop": 1.0,
+    "ordinals": 0.5416666666666666
+  },
+  "K": [
+    1,
+    3,
+    5,
+    10,
+    15,
+    20
+  ]
+}
