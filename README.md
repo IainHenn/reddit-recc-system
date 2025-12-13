@@ -1,3 +1,6 @@
+# Warning:
+- Local runs and access on the official webpage can take up to 1-2 minutes before an actual response is received on the frontend!
+
 # Start Up & Run Up Checklist (Local Development)
 
 ## Installation
