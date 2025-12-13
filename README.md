@@ -1,4 +1,3 @@
-```markdown
 # Start Up & Run Up Checklist (Local Development)
 
 ## Installation
@@ -89,4 +88,3 @@ Ensure all the following Python packages are installed (usually via `pip`):
 - [ ] Frontend running (`npm run dev`)
 - [ ] Backend running (`python backend.py`)
 - [ ] Access frontend at [localhost:5173](http://localhost:5173)
-```
